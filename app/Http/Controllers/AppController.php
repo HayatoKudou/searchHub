@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Abraham\TwitterOAuth\TwitterOAuth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Log;
@@ -21,7 +22,7 @@ class AppController extends Controller
         $googleSearchTime = 0;
         $googlTotalResults = 0;
 
-        // list($googleItems, $googleSearchTime, $googlTotalResults) = $this->serachGoogle($request);
+        list($googleItems, $googleSearchTime, $googlTotalResults) = $this->serachGoogle($request);
         list($twitterItems, $twitterSearchTime, $twitterTotalResults) = $this->searchTwitter($request);
 
         return view('main')->with([
@@ -39,8 +40,9 @@ class AppController extends Controller
 
     function serachGoogle($request)
     {
-        $api_key = "AIzaSyDSXWnJva0gVrR6rYs3-sq32MzhUOdrvm4";
-        $engine_id = "b3edae044d87813e2";
+        Log::debug(Config::get('token.google_api_key'));
+        $api_key = Config::get('token.google_api_key');
+        $engine_id = Config::get('token.google_engine_id');
         $search_word = $request->search_word;
 
         $parm = array(
@@ -63,10 +65,10 @@ class AppController extends Controller
 
     function searchTwitter($request)
     {
-        $consumer_key = 'dCuSs0sAbGTq1gGeLFPw8fsE4';
-        $consumer_key_sercret = 'HQgAyK43WeZ1MXHU2EGpCO0IXW86rRQMUV307Xx0IWvLOJPWtj';
-        $access_token = '905201668995784705-Uk8zwsxYV7aicz2dTQiH0RWOz5SwPLg';
-        $access_token_secret = 'OL79qI5VyPKeyyWTIlRAM40ZVptulF7vwXecy94IPQO6B';
+        $consumer_key = Config::get('token.consumer_key');
+        $consumer_key_sercret = Config::get('token.consumer_key_sercret');
+        $access_token = Config::get('token.access_token');
+        $access_token_secret = Config::get('token.access_token_secret');
 
         $totalResults = 0;
         $searchTime = microtime(true);
