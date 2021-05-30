@@ -15,32 +15,26 @@ class AppController extends Controller
         return view('main');
     }
 
-    public function search(Request $request)
+    public function show(Request $request)
     {
-        Log::debug($request);
         $googleItems = array();
         $googleSearchTime = 0;
         $googlTotalResults = 0;
 
         list($googleItems, $googleSearchTime, $googlTotalResults) = $this->serachGoogle($request);
-        list($twitterItems, $twitterSearchTime, $twitterTotalResults) = $this->searchTwitter($request);
 
         return view('main')->with([
-            'googleItems' => $googleItems, 
-            'googleSearchTime' => $googleSearchTime, 
+            'googleItems' => $googleItems,
+            'googleSearchTime' => $googleSearchTime,
             'googlTotalResults' => $googlTotalResults,
-
-            'twitterItems' => $twitterItems, 
-            'twitterSearchTime' => $twitterSearchTime, 
-            'twitterTotalResults' => $twitterTotalResults,
-
-            'search_flg' => true
+            'search_flg' => true,
+            'defaultSearchWord' => $request->search_word
         ]);
     }
 
     function serachGoogle($request)
     {
-        Log::debug(Config::get('token.google_api_key'));
+        $items = array();
         $api_key = Config::get('token.google_api_key');
         $engine_id = Config::get('token.google_engine_id');
         $search_word = $request->search_word;
@@ -57,31 +51,58 @@ class AppController extends Controller
         $response = Http::get('https://www.googleapis.com/customsearch/v1/?'.$parm);
         $response = json_decode($response, true);
 
-        $searchTime = $response['searchInformation']['searchTime'];
+        $searchTime = substr($response['searchInformation']['searchTime'], 0, 6);
         $totalResults = $response['searchInformation']['formattedTotalResults'];
-        
-        return [$response['items'], $searchTime, $totalResults];
+
+        if(isset($response['items'])){
+            $items = $response['items'];
+        }
+        return [$items, $searchTime, $totalResults];
     }
 
-    function searchTwitter($request)
+    function searchTwitter(Request $request)
     {
         $consumer_key = Config::get('token.consumer_key');
         $consumer_key_sercret = Config::get('token.consumer_key_sercret');
         $access_token = Config::get('token.access_token');
         $access_token_secret = Config::get('token.access_token_secret');
 
-        $totalResults = 0;
         $searchTime = microtime(true);
 
         $connection = new TwitterOAuth($consumer_key, $consumer_key_sercret, $access_token, $access_token_secret);
         $tweets = $connection->get('search/tweets', [
-            'q' => $request->search_word, 
-            'count' => 10
+            'q' => $request->search_word,
+            'count' => 50
         ]);
 
-        $totalResults = count($tweets->statuses);
+        $totalResults = isset($tweets->statuses) ? count($tweets->statuses) : 0;
         $searchTime = microtime(true) - $searchTime;
-        
-        return [$tweets->statuses, $searchTime, $totalResults];
+
+        return [
+            'twitterItems' => isset($tweets->statuses) ? $tweets->statuses : [],
+            'twitterSearchTime' => substr($searchTime, 0, 6), 
+            'twitterTotalResults' => $totalResults,
+        ];
+    }
+
+    function getTrends()
+    {
+        $searchFilter = (new SearchFilter())
+            ->withCategory(0) //All categories
+            ->withSearchTerm('google')
+            ->withLocation('JP')
+            ->considerWebSearch()
+            ->withinInterval(
+                new \DateTimeImmutable('now -7 days'),
+                new \DateTimeImmutable('now')
+            )
+            ->withTopMetrics()
+            ->withRisingMetrics();
+
+        $result = (new RelatedQueriesSearch())
+            ->search($searchFilter)
+            ->jsonSerialize();
+
+        Log::debug(print_r($result, true));
     }
 }
