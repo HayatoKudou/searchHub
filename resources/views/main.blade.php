@@ -13,6 +13,17 @@
     <div>
         <form action="{{ url('/')}}" method="POST">
             @csrf
+            <div class="header">
+                <nav class="nav01">
+                    <ul>
+                        <li>
+                            <a href="#">BookMark List</a>
+                            <ul id="BookMarkList">
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
             <div style="text-align: center; padding: 40px;">
                 <h3 style="font-weight: bold;">Search Hub</h3>
                 <input type="search" name="search_word" value="{{ old('search_word', isset($defaultSearchWord) ? $defaultSearchWord : '') }}" placeholder="キーワードを入力" style="width: 40%;">
@@ -22,7 +33,7 @@
         <div>
             <div style="float: left; width: 100%;">
                 <div>
-                    <div style="width: 57%; text-align: right; display: inline-block;">
+                    <div style="text-align: center;">
                         <label>
                             <input type="radio" name="showResultPlatform" value="google" onclick="changeShowResult(this.value)" checked>
                             <span>Google</span>
@@ -31,42 +42,6 @@
                             <input type="radio" name="showResultPlatform" value="twitter" onclick="changeShowResult(this.value)">
                             <span>Twitter</span>
                         </label>
-                    </div>
-                    <div style="width: 40%; text-align: center; display: inline-block;">
-                        <nav class="nav01">
-                            <ul>
-                                <li>
-                                    <a href="#">Book List</a>
-                                    <ul>
-                                        <li><a href="#">sub nav</a></li>
-                                        <li><a href="#">sub nav</a></li>
-                                        <li><a href="#">sub nav</a></li>
-                                    </ul>
-                                </li>
-                                <!-- <li>
-                            <a href="#">nav</a>
-                            <ul>
-                                <li><a href="#">sub nav</a></li>
-                                <li>
-                                    <a href="#">sub nav</a>
-                                    <ul>
-                                        <li><a href="#">child</a></li>
-                                        <li><a href="#">child</a></li>
-                                        <li><a href="#">child</a></li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="#">sub nav</a>
-                                    <ul>
-                                        <li><a href="#">child</a></li>
-                                        <li><a href="#">child</a></li>
-                                        <li><a href="#">child</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li> -->
-                            </ul>
-                        </nav>
                     </div>
                 </div>
 
@@ -98,6 +73,10 @@
     </div>
 
     <script language="javascript" type="text/javascript">
+        window.onload = function() {
+            getBookMarkList();
+        };
+
         function changeShowResult(showResultPlatform) {
             if (showResultPlatform === 'google') {
                 document.getElementById('google_result').style.display = 'block';
@@ -151,23 +130,48 @@
         function setBook(url, title) {
             var BookList = JSON.parse(localStorage.getItem("BookList"));
             if (BookList) {
+                var flg = false;
                 Object.keys(BookList).map(key => {
-                    console.log(BookList[key])
                     if (BookList[key].url == url) {
-                        return
+                        flg = true;
+                        return;
                     }
                 })
-                BookList.push({
-                    url: url,
-                    title: title
-                })
-                localStorage.setItem("BookList", JSON.stringify(BookList));
+                if (!flg) {
+                    BookList.push({
+                        url: url,
+                        title: title
+                    })
+                    localStorage.setItem("BookList", JSON.stringify(BookList));
+                }
             } else {
                 BookList = {
                     url: url,
                     title: title
                 }
                 localStorage.setItem("BookList", JSON.stringify([BookList]));
+            }
+            getBookMarkList();
+        }
+
+        function getBookMarkList() {
+            var ul = document.getElementById('BookMarkList');
+            var BookList = JSON.parse(localStorage.getItem("BookList"));
+            console.log(BookList)
+            if (BookList) {
+                BookList.map(data => {
+                    if (!document.getElementsByClassName(data.url).length) {
+                        var li = document.createElement('li');
+                        li.setAttribute('class', data.url);
+                        var a = document.createElement('a');
+                        a.setAttribute('href', data.url);
+                        a.setAttribute('target', '_blank');
+                        var text = document.createTextNode(data.title);
+                        a.appendChild(text);
+                        li.appendChild(a);
+                        ul.appendChild(li);
+                    }
+                })
             }
         }
     </script>

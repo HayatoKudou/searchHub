@@ -1,6 +1,9 @@
+.header {
+    position: fixed;
+    right: 0;
+}
+
 .wp-block-quote {
-    /* margin-top: 15px; 
-    margin-bottom: 15px; */
     margin-left: 60px;
 }
 
@@ -62,6 +65,7 @@ nav ul li:hover {
   background-color: rgba(255,255,255,.3);
 }
 nav ul li a {
+  padding: 5px;
   display: inline-block;
   /* padding: 1em 3em; */
   color: black;
@@ -73,7 +77,7 @@ nav ul li a {
 nav ul ul {
   position: absolute;
   top: 100%;
-  left: -2px;
+  right: -2px;
 }
 nav ul ul li {
   float: none;
@@ -87,6 +91,13 @@ nav ul ul ul {
   position: absolute;
   top: -2px;
   left: 100%;
+}
+
+.nav01 {
+    background-color: #d0d0d0;
+}
+#BookMarkList li {
+    background-color: #d0d0d0;
 }
 
 /* DEMO #1 */
