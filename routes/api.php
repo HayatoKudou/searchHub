@@ -16,3 +16,4 @@ use App\Http\Controllers\AppController;
 */
 
 Route::post('/searchTwitter', [AppController::class, 'searchTwitter']);
+Route::post('/getTrends', [AppController::class, 'getTrends']);

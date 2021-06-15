@@ -84,25 +84,24 @@ class AppController extends Controller
             'twitterTotalResults' => $totalResults,
         ];
     }
-
-    function getTrends()
+    
+    function getTrends(Request $request)
     {
-        $searchFilter = (new SearchFilter())
-            ->withCategory(0) //All categories
-            ->withSearchTerm('google')
-            ->withLocation('JP')
-            ->considerWebSearch()
-            ->withinInterval(
-                new \DateTimeImmutable('now -7 days'),
-                new \DateTimeImmutable('now')
-            )
-            ->withTopMetrics()
-            ->withRisingMetrics();
-
-        $result = (new RelatedQueriesSearch())
-            ->search($searchFilter)
-            ->jsonSerialize();
-
-        Log::debug(print_r($result, true));
+        Log::debug($request->search_word);
+        $options = [
+            'hl' => 'ja-JP',
+            'tz' => -540,
+            'geo' => 'JP',
+        ];
+        $gt = new \Google\GTrends($options);
+        
+        $keyWordList = [$request->search_word];
+        $category = 0;
+        $time = 'today 12-m';
+        $property = '';
+        
+        $result = $gt->explore($keyWordList, $category, $time, $property);
+        // Log::debug($result);
+        return $result;
     }
 }
