@@ -119,20 +119,17 @@ function getTrend() {
     })
 }
 
-function renderGraph(check_val) {
-    if(check_val){
-        
-    } else {
-
-    }
+function renderGraph() {
     var trendData = '';
     var renderTrendFlg = localStorage.getItem("renderTrendFlg");
     if(renderTrendFlg == 'false'){
         trendData = getTrend();
         localStorage.setItem("renderTrendFlg", true);
+        console.log(trendData)
     }
-    console.log(trendData)
     var ctx = document.getElementById("myLineChart");
+    var check_val = document.getElementsByName('showTrend');
+
     var myLineChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -171,4 +168,11 @@ function renderGraph(check_val) {
             },
         }
     });
+
+    var canvasContainer = document.getElementById("canvas-container");
+    if(check_val){
+        canvasContainer.style.width = '60%';
+    } else {
+        canvasContainer.style.width = '0%';
+    }
 }

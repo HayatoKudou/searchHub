@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Search Hub</title>
-    <link href="css/app.css" rel="stylesheet" type="text/css">
+    <link href="css/main.css" rel="stylesheet" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
 </head>
 
 <body class="antialiased">
-    <div>
+    <div id="app">
+        <!-- <trend-component></trend-component> -->
         <form action="{{ url('/')}}" method="POST">
             @csrf
             <div class="header">
@@ -45,8 +46,7 @@
                             <span>Twitter</span>
                         </label>
                         <label>
-                            <!-- <input type="checkbox" onclick="showTrend(this.value)"> -->
-                            <input type="checkbox" onclick="renderGraph(this.value)">
+                            <input type="checkbox" name="showTrend" onclick="renderGraph()">
                             <span>トレンド表示</span>
                         </label>
                     </div>
@@ -74,7 +74,9 @@
 
                     <div id="twitter_result"></div>
 
-                    <canvas id="myLineChart"></canvas>
+                    <div id="canvas-container" style="width: 0;">
+                        <canvas id="myLineChart" style="position: sticky; top: 30px;"></canvas>
+                    </div>
                 </div>
 
             </div>
@@ -83,6 +85,7 @@
             </div>
         </div>
     </div>
+    <script src=" {{ mix('js/app.js') }} "></script>
     <script src="{{ asset('/js/main.js') }}"></script>
 </body>
 
